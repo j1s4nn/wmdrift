@@ -1,0 +1,33 @@
+{
+  "seed": 0,
+  "fps": 8,
+  "resolution": [
+    256,
+    256
+  ],
+  "intrinsics": {
+    "fx": 256.0,
+    "fy": 256.0,
+    "cx": 128.0,
+    "cy": 128.0
+  },
+  "translation_step": 0.08,
+  "videos": {
+    "synthetic_pan.mp4": {
+      "pose": "w*30",
+      "notes": "clean forward dolly, 0.08 units per frame"
+    },
+    "synthetic_jittered.mp4": {
+      "pose": "w*30",
+      "notes": "same dolly with random +-3px per-frame shifts"
+    },
+    "synthetic_loop.mp4": {
+      "pose": "w*10,a*10,s*10,d*10",
+      "notes": "square loop, last frame returns to the first viewpoint"
+    },
+    "synthetic_decay.mp4": {
+      "pose": "w*30",
+      "notes": "dolly with progressive blur on the last 60% of frames"
+    }
+  }
+}

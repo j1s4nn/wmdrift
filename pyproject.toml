@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wmdrift"
+version = "0.1.0"
+description = "Long-horizon drift diagnostics for autoregressive video world models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Md Jisan Hossen" }]
+dependencies = [
+    "torch>=2.1",
+    "numpy>=1.24",
+    "opencv-python>=4.8",
+    "matplotlib>=3.7",
+    "scipy>=1.11",
+    "lpips>=0.1.4",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+clip = ["open_clip_torch>=2.24"]
+dev = ["pytest>=7.4", "flake8>=6.1"]
+
+[tool.setuptools.packages.find]
+include = ["wmdrift*"]

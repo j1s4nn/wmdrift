@@ -1,0 +1,2 @@
+video,n_frames,fps,pose,drift_scale,ate_mean,ate_max,ate_final,rot_err_mean_deg,rot_err_max_deg,unreliable_pairs,jitter_score,jitter_hf_rms,quality_slope,quality_r,collapse_frame
+synthetic_pan.mp4,31,8.0,w*30,0.08434,0.03633,0.07665,0.04465,1.6876,2.7021,0,0.2514,0.02591,-14.59693,-0.8346,15
