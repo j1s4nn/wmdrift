@@ -97,43 +97,31 @@ A real run on the pan fixture: [examples/sample_report/report.md](examples/sampl
 
 ![drift curve](examples/sample_report/drift_curve.png)
 
-## What I Actually Got When I Ran It
+## Validation on Synthetic Fixtures
 
-So I ran wmdrift on all four synthetic fixtures to see if it actually works. Here's what happened:
+Each fixture is rendered from a random 3D scene through exactly the commanded
+poses, with one known failure injected — so every metric has a ground truth to
+check against. I ran the full pipeline on all four fixtures; each metric
+separates its injected failure from the clean baseline.
 
-**Clean pan (synthetic_pan.mp4):**
-- Camera moved forward 30 steps like commanded
-- VO recovered the trajectory pretty well - ATE mean was only 0.0257
-- Scale factor came out to 0.0834 which is close to the commanded 0.08 per step
-- Jitter was low (HF RMS 0.0259) - makes sense cause its clean
-- Quality decay slope was -14.60 per frame - this is just from the forward dolly zooming in, not actual blur
-- No memory test cause it's not a loop
+| Fixture | Injected failure | Key evidence |
+|---------|------------------|--------------|
+| `synthetic_pan.mp4` | none — clean forward dolly, 30 steps | ATE mean **0.0257**; fitted VO scale 0.0834 vs commanded 0.08/step; jitter HF RMS 0.0259; quality slope −14.60/frame |
+| `synthetic_jittered.mp4` | random ±3 px per-frame shifts | jitter HF RMS **0.4138** — 16× the clean fixture; ATE mean rises to 0.0542; 2 unreliable frame pairs (RANSAC found too few matches) |
+| `synthetic_loop.mp4` | none — square loop (w→a→s→d, 10 each) exercising memory | loop-closure LPIPS **0.0097** (starting view reproduced); SSIM 0.9626, MSE 8.0; quality slope +0.82/frame (flat); ATE mean 0.2120 with 19 unreliable pairs — sharp turns stress the VO |
+| `synthetic_decay.mp4` | progressive blur over the last 60% of frames | quality slope **−79.27/frame** — 5.4× steeper than the clean pan; collapse heuristic fires at frame 13; jitter stays low (HF RMS 0.0283), confirming blur and jitter are measured independently |
 
-**Jittered video (synthetic_jittered.mp4):**
-- Same camera path but with random +-3px shifts added to each frame
-- Drift was worse (ATE mean 0.0542 vs 0.0257 for clean)
-- Jitter HF RMS jumped to **0.4138** - thats 16x higher than the clean one! So it definitely detects jitter
-- Had 2 unreliable frame pairs where RANSAC couldn't find enough matches
-- Quality slope was similar to clean (-14.45) cause the jitter doesn't actually blur things
+Two honest caveats from these runs:
 
-**Loop video (synthetic_loop.mp4):**
-- Camera went in a square: forward 10, right 10, back 10, left 10 - should end up where it started
-- This one tested the memory metric
-- LPIPS between first and last frame was **0.0097** - super low, means the model remembered where it started
-- SSIM was 0.9626, MSE was 8.0
-- Quality slope was +0.82 per frame - basically flat, no decay
-- Drift was higher (ATE mean 0.2120) and had 19 unreliable pairs - the sharp turns in the loop made VO harder
+- The clean pan's quality slope (−14.60/frame) comes from the forward dolly
+  magnifying the scene, not from blur — Laplacian variance conflates zoom with
+  sharpness loss (see Limitations).
+- The loop fixture shows the ORB VO degrades on sharp turns, which is why
+  unreliable frame pairs are counted and reported explicitly rather than
+  silently dropped.
 
-**Decay video (synthetic_decay.mp4):**
-- Forward dolly but with progressive blur added to last 60% of frames
-- Quality decay slope was **-79.27 per frame** - thats 5.4x steeper than the clean pan (-14.60)
-- Collapse heuristic fired at frame 13 - detected the quality drop
-- Jitter was low (HF RMS 0.0283) - blur doesn't cause jitter, just quality loss
-- Had 1 unreliable frame pair
-
-So yeah, all four metrics work. Drift detects camera errors, jitter detects frame instability, memory detects if the model forgets, and quality detects blur/decay. The numbers actually separate the different failure modes which is what I wanted.
-
-I also ran the test suite - all 24 tests passed in like 9.5 seconds. Tests cover all the metrics and edge cases.
+The test suite — 24 tests covering all four metrics and their edge cases —
+passes in ≈9.5 s.
 
 ## Limitations
 
