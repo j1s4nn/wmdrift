@@ -144,6 +144,10 @@ passes in ≈9.5 s.
 - COLMAP or ORB-SLAM3 would give better trajectories than my 100-line ORB VO.
   Future work.
 
+## Technology Stack
+
+`Python` · `OpenCV` (ORB features, essential matrix, Farneback flow, Laplacian) · `NumPy` / `SciPy` · `PyTorch` · `lpips` (perceptual memory metric) · `openai-clip` (optional prompt alignment) · `scikit-image` (SSIM fallback) · `pytest` (24 tests)
+
 ## References
 
 - minWM: https://github.com/shengshu-ai/minWM
